@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Zap, Map, BookOpen, List, Search, Scale } from 'lucide-react';
 import HunterSearch from '@/components/HunterSearch';
 import BountyList from '@/components/BountyList';
 import TreasureMap from '@/components/TreasureMap';
@@ -52,10 +53,17 @@ export default function Home() {
             <HunterSearch onSearch={handleSearch} />
 
             <div className="flex flex-wrap justify-center gap-3 mt-8">
-              <span className="px-4 py-2 min-h-11 flex items-center bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-300 text-sm font-mono">⚡ 即時搜尋</span>
-              <span className="px-4 py-2 min-h-11 flex items-center bg-cyan-500/10 border border-cyan-500/30 rounded-full text-cyan-300 text-sm font-mono">🗺️ 地圖視覺化</span>
-              <button onClick={() => setShowModal(true)} className="px-4 py-2 min-h-11 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-mono hover:bg-purple-500/20 transition-colors">
-                📖 如何申請繼承？
+              <span className="px-4 py-2 min-h-11 flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-300 text-sm font-mono">
+                <Zap className="w-4 h-4" />
+                即時搜尋
+              </span>
+              <span className="px-4 py-2 min-h-11 flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full text-cyan-300 text-sm font-mono">
+                <Map className="w-4 h-4" />
+                地圖視覺化
+              </span>
+              <button onClick={() => setShowModal(true)} className="px-4 py-2 min-h-11 flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-300 text-sm font-mono hover:bg-purple-500/20 transition-colors">
+                <BookOpen className="w-4 h-4" />
+                如何申請繼承？
               </button>
             </div>
           </div>
@@ -74,9 +82,20 @@ export default function Home() {
               </div>
               <button
                 onClick={() => setShowMap(!showMap)}
-                className="ml-4 px-4 py-2 min-h-11 bg-amber-500/20 border border-amber-500/40 rounded-lg text-amber-300 text-sm font-mono hover:bg-amber-500/30 transition-colors whitespace-nowrap"
+                aria-label={showMap ? '切換到列表模式' : '切換到地圖模式'}
+                className="ml-4 px-4 py-2 min-h-11 flex items-center gap-2 bg-amber-500/20 border border-amber-500/40 rounded-lg text-amber-300 text-sm font-mono hover:bg-amber-500/30 transition-colors whitespace-nowrap"
               >
-                {showMap ? '📋 列表模式' : '🗺️ 地圖模式'}
+                {showMap ? (
+                  <>
+                    <List className="w-4 h-4" />
+                    列表模式
+                  </>
+                ) : (
+                  <>
+                    <Map className="w-4 h-4" />
+                    地圖模式
+                  </>
+                )}
               </button>
             </div>
 
@@ -92,12 +111,12 @@ export default function Home() {
         {!hasSearched && (
           <section className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
             {[
-              { icon: '🗺️', title: '什麼是未繼承土地？', desc: '土地所有權人過世後，未辦理繼承登記的土地。可能蘊藏著被遺忘的家族財富。' },
-              { icon: '🔎', title: '如何使用尋寶網？', desc: '輸入姓名進行搜尋，系統會顯示相關的未繼承土地資料，包括地段、面積等資訊。' },
-              { icon: '⚖️', title: '發現遺產怎麼辦？', desc: '建議諮詢專業地政士或律師，確認繼承關係後，依法辦理繼承登記手續。' },
+              { Icon: Map, title: '什麼是未繼承土地？', desc: '土地所有權人過世後，未辦理繼承登記的土地。可能蘊藏著被遺忘的家族財富。' },
+              { Icon: Search, title: '如何使用尋寶網？', desc: '輸入姓名進行搜尋，系統會顯示相關的未繼承土地資料，包括地段、面積等資訊。' },
+              { Icon: Scale, title: '發現遺產怎麼辦？', desc: '建議諮詢專業地政士或律師，確認繼承關係後，依法辦理繼承登記手續。' },
             ].map((card, i) => (
-              <div key={i} className="group bg-zinc-900/40 backdrop-blur-sm border border-zinc-800 hover:border-amber-500/50 rounded-xl p-6 transition-all duration-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.1)] hover:-translate-y-1">
-                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{card.icon}</div>
+              <div key={i} className="group cursor-pointer bg-zinc-900/40 backdrop-blur-sm border border-zinc-800 hover:border-amber-500/50 rounded-xl p-6 transition-all duration-300 hover:shadow-[0_0_30px_rgba(251,191,36,0.1)] hover:-translate-y-1">
+                <card.Icon className="w-10 h-10 mb-4 text-amber-400 group-hover:scale-110 transition-transform" />
                 <h4 className="text-lg font-bold text-zinc-100 mb-2 group-hover:text-amber-400 transition-colors">{card.title}</h4>
                 <p className="text-sm text-zinc-400 leading-relaxed">{card.desc}</p>
               </div>

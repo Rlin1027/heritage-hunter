@@ -84,10 +84,11 @@ export default function HunterSearch({ onSearch }: HunterSearchProps) {
 
           {/* District Input */}
           <div>
-            <label className="block text-sm font-semibold text-[var(--color-text)] mb-2 [html[data-theme='cyberpunk']_&]:tracking-wide [html[data-theme='cyberpunk']_&]:uppercase">
+            <label htmlFor="district-input" className="block text-sm font-semibold text-[var(--color-text)] mb-2 [html[data-theme='cyberpunk']_&]:tracking-wide [html[data-theme='cyberpunk']_&]:uppercase">
               District / Sector
             </label>
             <input
+              id="district-input"
               type="text"
               value={district}
               onChange={(e) => setDistrict(e.target.value)}
