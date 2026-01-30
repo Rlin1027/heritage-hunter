@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Cyberpunk Theme - Neon Dystopia */
+[data-theme="cyberpunk"] {
+  --color-bg: #0a0a0f;
+  --color-surface: #151520;
+  --color-primary: #00fff5;
+  --color-accent: #ff00ff;
+  --color-text: #ffffff;
+  --color-text-dim: #b8b8d1;
+  --color-border: #2d2d44;
+  --color-card: #1a1a28;
+  --color-card-hover: #232339;
+  --glow-primary: 0 0 20px rgba(0, 255, 245, 0.5);
+  --glow-accent: 0 0 20px rgba(255, 0, 255, 0.5);
+  --gradient-bg: linear-gradient(135deg, #0a0a0f 0%, #1a0a2e 100%);
+}
+
+/* Indiana Jones Theme - Vintage Adventure */
+[data-theme="indiana"] {
+  --color-bg: #f4e4bc;
+  --color-surface: #ecdbb0;
+  --color-primary: #8b4513;
+  --color-accent: #d4af37;
+  --color-text: #3e2723;
+  --color-text-dim: #6d4c41;
+  --color-border: #c4a572;
+  --color-card: #faf3e0;
+  --color-card-hover: #f5ead8;
+  --glow-primary: 0 4px 12px rgba(139, 69, 19, 0.3);
+  --glow-accent: 0 4px 12px rgba(212, 175, 55, 0.4);
+  --gradient-bg: linear-gradient(135deg, #f4e4bc 0%, #e8d4a0 100%);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Cyberpunk-specific effects */
+[data-theme="cyberpunk"] {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0, 255, 245, 0.03) 0px,
+      transparent 1px,
+      transparent 2px,
+      rgba(0, 255, 245, 0.03) 3px
+    ),
+    var(--gradient-bg);
+}
+
+[data-theme="cyberpunk"] .glow-text {
+  text-shadow: var(--glow-primary);
+}
+
+[data-theme="cyberpunk"] .border-glow {
+  box-shadow: var(--glow-primary);
+}
+
+/* Indiana theme-specific effects */
+[data-theme="indiana"] {
+  background-image:
+    url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="%23f4e4bc"/><path d="M0 0 L100 100 M100 0 L0 100" stroke="%23e8d4a0" stroke-width="0.5" opacity="0.1"/></svg>'),
+    var(--gradient-bg);
+  background-size: 100px 100px, 100%;
+}
+
+[data-theme="indiana"] .paper-texture {
+  position: relative;
+}
+
+[data-theme="indiana"] .paper-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" /></filter><rect width="200" height="200" filter="url(%23noise)" opacity="0.05"/></svg>');
+  pointer-events: none;
 }
