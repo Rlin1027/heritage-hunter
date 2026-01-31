@@ -1,6 +1,7 @@
+// Base land interface (compatible with both API and local data)
 export interface UnclaimedLand {
   id: string;
-  sourceCity: 'Changhua' | 'Chiayi' | 'Taipei' | 'NewTaipei';
+  sourceCity: string;
   district: string;
   section: string;
   landNumber: string;
@@ -8,12 +9,45 @@ export interface UnclaimedLand {
   areaM2: number;
   areaPing: number;
   status: string;
-  coordinates?: { lat: number; lng: number; };
+  coordinates?: { lat: number; lng: number } | null;
 }
 
 export interface SearchFilters {
-  city?: UnclaimedLand['sourceCity'];
+  city?: string;
   district?: string;
+  query?: string;
+}
+
+export interface PaginationInfo {
+  total: number;
+  limit: number;
+  offset: number;
+  hasMore: boolean;
+}
+
+export interface SearchResult {
+  data: UnclaimedLand[];
+  pagination: PaginationInfo;
+}
+
+export interface StatisticsData {
+  totalLands: number;
+  totalAreaM2: number;
+  totalAreaPing: number;
+  byCity: Array<{
+    city: string;
+    count: number;
+    areaM2: number;
+    areaPing: number;
+    lastSynced?: string;
+    status?: string;
+  }>;
+  lastUpdated: string;
+}
+
+export interface CityData {
+  city: string;
+  districts: string[];
 }
 
 export type ThemeType = 'cyberpunk' | 'indiana';
