@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Zap, Map, BookOpen, List, Search, Scale, Database, Loader2 } from 'lucide-react';
+import { Zap, Map, BookOpen, List, Search, Scale, Database, Loader2, BarChart3 } from 'lucide-react';
+import Link from 'next/link';
 import HunterSearch from '@/components/HunterSearch';
 import BountyList from '@/components/BountyList';
 import TreasureMap from '@/components/TreasureMap';
@@ -50,6 +51,17 @@ export default function Home() {
               {dataSource === 'api' ? '即時資料庫' : '本地示範資料'}
             </div>
           )}
+
+          {/* Dashboard Navigation */}
+          <div className="mt-6">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 rounded-lg text-cyan-400 transition-all hover:shadow-[0_0_20px_rgba(34,211,238,0.2)]"
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>統計儀表板</span>
+            </Link>
+          </div>
         </header>
 
         {/* Hero Search Section */}

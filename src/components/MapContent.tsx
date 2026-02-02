@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { UnclaimedLand } from '@/lib/types';
+import { HeatmapLayer } from './HeatmapLayer';
+import { MapLegend } from './MapLegend';
 
 // Fix Leaflet default marker icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -32,43 +34,77 @@ interface MapContentProps {
 }
 
 export default function MapContent({ lands, onMarkerClick }: MapContentProps) {
-  return (
-    <MapContainer
-      center={[25.0330, 121.5654]}
-      zoom={12}
-      style={{ height: '100%', width: '100%' }}
-      className="z-0"
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-      />
+  const [mapMode, setMapMode] = useState<'markers' | 'heatmap'>('markers');
 
-      {lands.filter(land => land.coordinates).map((land) => (
-        <Marker
-          key={land.id}
-          position={[land.coordinates!.lat, land.coordinates!.lng]}
-          icon={treasureIcon}
-          eventHandlers={{
-            click: () => onMarkerClick?.(land),
-          }}
+  return (
+    <div className="relative h-full w-full">
+      {/* Map Mode Toggle */}
+      <div className="absolute top-4 left-4 z-[1000] flex gap-2">
+        <button
+          onClick={() => setMapMode('markers')}
+          className={`px-4 py-2 rounded-lg border border-amber-500/30 backdrop-blur-sm transition-all ${
+            mapMode === 'markers'
+              ? 'bg-amber-500 text-black font-semibold'
+              : 'bg-zinc-900/90 text-white hover:bg-zinc-800/90'
+          }`}
         >
-          <Popup>
-            <div className="p-3 min-w-[220px] bg-zinc-900 text-white rounded-lg">
-              <h3 className="font-bold text-amber-400 text-lg mb-2 flex items-center gap-2">
-                <span>💎</span> {land.ownerName}
-              </h3>
-              <div className="space-y-1.5 text-sm">
-                <p><span className="text-zinc-400">地區:</span> {land.district}</p>
-                <p><span className="text-zinc-400">地段:</span> {land.section}</p>
-                <p><span className="text-zinc-400">地號:</span> {land.landNumber}</p>
-                <p><span className="text-zinc-400">面積:</span> {land.areaM2.toLocaleString()} m² ({land.areaPing.toFixed(2)} 坪)</p>
-                <p><span className="text-zinc-400">狀態:</span> <span className="text-amber-300">{land.status}</span></p>
-              </div>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+          標記
+        </button>
+        <button
+          onClick={() => setMapMode('heatmap')}
+          className={`px-4 py-2 rounded-lg border border-amber-500/30 backdrop-blur-sm transition-all ${
+            mapMode === 'heatmap'
+              ? 'bg-amber-500 text-black font-semibold'
+              : 'bg-zinc-900/90 text-white hover:bg-zinc-800/90'
+          }`}
+        >
+          熱力圖
+        </button>
+      </div>
+
+      <MapContainer
+        center={[25.0330, 121.5654]}
+        zoom={12}
+        style={{ height: '100%', width: '100%' }}
+        className="z-0"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        />
+
+        {mapMode === 'markers' ? (
+          lands.filter(land => land.coordinates).map((land) => (
+            <Marker
+              key={land.id}
+              position={[land.coordinates!.lat, land.coordinates!.lng]}
+              icon={treasureIcon}
+              eventHandlers={{
+                click: () => onMarkerClick?.(land),
+              }}
+            >
+              <Popup>
+                <div className="p-3 min-w-[220px] bg-zinc-900 text-white rounded-lg">
+                  <h3 className="font-bold text-amber-400 text-lg mb-2 flex items-center gap-2">
+                    <span>💎</span> {land.ownerName}
+                  </h3>
+                  <div className="space-y-1.5 text-sm">
+                    <p><span className="text-zinc-400">地區:</span> {land.district}</p>
+                    <p><span className="text-zinc-400">地段:</span> {land.section}</p>
+                    <p><span className="text-zinc-400">地號:</span> {land.landNumber}</p>
+                    <p><span className="text-zinc-400">面積:</span> {land.areaM2.toLocaleString()} m² ({land.areaPing.toFixed(2)} 坪)</p>
+                    <p><span className="text-zinc-400">狀態:</span> <span className="text-amber-300">{land.status}</span></p>
+                  </div>
+                </div>
+              </Popup>
+            </Marker>
+          ))
+        ) : (
+          <HeatmapLayer lands={lands} />
+        )}
+      </MapContainer>
+
+      {mapMode === 'heatmap' && <MapLegend visible={true} />}
+    </div>
   );
 }
