@@ -1,5 +1,6 @@
 'use client';
 
+import { memo } from 'react';
 import { UnclaimedLand } from '@/lib/types';
 
 interface BountyCardProps {
@@ -7,7 +8,7 @@ interface BountyCardProps {
   onClick?: () => void;
 }
 
-export default function BountyCard({ land, onClick }: BountyCardProps) {
+function BountyCard({ land, onClick }: BountyCardProps) {
   const statusColors = {
     available: 'text-green-400',
     claimed: 'text-yellow-400',
@@ -133,3 +134,5 @@ export default function BountyCard({ land, onClick }: BountyCardProps) {
     </div>
   );
 }
+
+export default memo(BountyCard);

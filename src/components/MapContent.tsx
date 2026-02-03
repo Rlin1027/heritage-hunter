@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -35,6 +35,11 @@ interface MapContentProps {
 
 export default function MapContent({ lands, onMarkerClick }: MapContentProps) {
   const [mapMode, setMapMode] = useState<'markers' | 'heatmap'>('markers');
+
+  const landsWithCoords = useMemo(
+    () => lands.filter(land => land.coordinates),
+    [lands]
+  );
 
   return (
     <div className="relative h-full w-full">
@@ -74,7 +79,7 @@ export default function MapContent({ lands, onMarkerClick }: MapContentProps) {
         />
 
         {mapMode === 'markers' ? (
-          lands.filter(land => land.coordinates).map((land) => (
+          landsWithCoords.map((land) => (
             <Marker
               key={land.id}
               position={[land.coordinates!.lat, land.coordinates!.lng]}

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
+import { createServerClient } from '@/lib/supabase';
 import { DataFetcher } from '@/lib/data-sync/fetcher';
 import { TaipeiParser } from '@/lib/data-sync/parsers/taipei';
 import { ChiayiParser } from '@/lib/data-sync/parsers/chiayi';
@@ -9,18 +9,6 @@ import { normalizeData } from '@/lib/data-sync/normalizer';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 300; // 5 minutes for cron job
-
-// Create typed Supabase client for server operations
-function getServerClient() {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    return createClient<Database>(supabaseUrl, serviceRoleKey, {
-        auth: {
-            autoRefreshToken: false,
-            persistSession: false,
-        },
-    });
-}
 
 /**
  * Vercel Cron Job endpoint for daily data sync
@@ -34,17 +22,22 @@ export async function GET(request: NextRequest) {
         const authHeader = request.headers.get('authorization');
         const cronSecret = process.env.CRON_SECRET;
 
-        // In production, verify the cron secret
-        if (process.env.NODE_ENV === 'production' && cronSecret) {
+        // Verify cron secret when configured; fail in production if not set
+        if (cronSecret) {
             if (authHeader !== `Bearer ${cronSecret}`) {
                 return NextResponse.json(
                     { error: 'Unauthorized' },
                     { status: 401 }
                 );
             }
+        } else if (process.env.NODE_ENV === 'production') {
+            return NextResponse.json(
+                { error: 'Server misconfiguration: CRON_SECRET not set' },
+                { status: 500 }
+            );
         }
 
-        const supabase = getServerClient();
+        const supabase = createServerClient();
         const cities = ['台北市', '嘉義市', '嘉義縣', '彰化縣'];
         const results: Array<{
             city: string;
@@ -164,7 +157,7 @@ async function syncCityData(city: string): Promise<{
     const rawData = parser.parse(fetchResult.data);
     const normalizedData = normalizeData(rawData, city);
 
-    const supabase = getServerClient();
+    const supabase = createServerClient();
 
     // Upsert in batches
     const batchSize = 100;

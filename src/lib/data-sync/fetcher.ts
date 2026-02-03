@@ -10,6 +10,7 @@ export interface FetchResult {
 export class DataFetcher {
   private static readonly DATA_GOV_BASE = 'https://data.gov.tw/api/v2/rest/datastore';
   private static readonly TAIPEI_API_BASE = 'https://data.taipei/api/v1/dataset';
+  private static readonly MAX_RECORDS_SAFETY_LIMIT = 100_000;
 
   /**
    * Fetch CSV data from data.gov.tw
@@ -78,7 +79,7 @@ export class DataFetcher {
         offset += limit;
 
         // Safety limit
-        if (allRecords.length > 100000) break;
+        if (allRecords.length > this.MAX_RECORDS_SAFETY_LIMIT) break;
       }
 
       // Convert JSON to CSV format for uniform processing

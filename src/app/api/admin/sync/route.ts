@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
+import { createServerClient } from '@/lib/supabase';
 import { DataFetcher } from '@/lib/data-sync/fetcher';
 import { TaipeiParser } from '@/lib/data-sync/parsers/taipei';
 import { ChiayiParser } from '@/lib/data-sync/parsers/chiayi';
@@ -11,19 +11,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // Allow up to 60 seconds for sync
 
 // API key for admin operations
-const ADMIN_API_KEY = process.env.ADMIN_API_KEY || 'dev-key-change-me';
-
-// Create typed Supabase client for server operations
-function getServerClient() {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-    return createClient<Database>(supabaseUrl, serviceRoleKey, {
-        auth: {
-            autoRefreshToken: false,
-            persistSession: false,
-        },
-    });
-}
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY;
 
 interface SyncResult {
     city: string;
@@ -44,7 +32,7 @@ export async function POST(request: NextRequest) {
         const authHeader = request.headers.get('authorization');
         const apiKey = authHeader?.replace('Bearer ', '');
 
-        if (apiKey !== ADMIN_API_KEY) {
+        if (!ADMIN_API_KEY || apiKey !== ADMIN_API_KEY) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -55,7 +43,7 @@ export async function POST(request: NextRequest) {
         const body = await request.json().catch(() => ({}));
         const citiesToSync = body.cities || ['台北市', '嘉義市', '嘉義縣', '彰化縣'];
 
-        const supabase = getServerClient();
+        const supabase = createServerClient();
         const results: SyncResult[] = [];
 
         // Process each city
@@ -132,7 +120,7 @@ export async function POST(request: NextRequest) {
 /**
  * Sync data for a specific city
  */
-async function syncCity(supabase: ReturnType<typeof getServerClient>, city: string): Promise<SyncResult> {
+async function syncCity(supabase: ReturnType<typeof createServerClient>, city: string): Promise<SyncResult> {
     let fetchResult;
     let parser;
 
@@ -236,14 +224,14 @@ export async function GET(request: NextRequest) {
         const authHeader = request.headers.get('authorization');
         const apiKey = authHeader?.replace('Bearer ', '');
 
-        if (apiKey !== ADMIN_API_KEY) {
+        if (!ADMIN_API_KEY || apiKey !== ADMIN_API_KEY) {
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
             );
         }
 
-        const supabase = getServerClient();
+        const supabase = createServerClient();
 
         // Get recent sync logs
         const { data: logs, error: logsError } = await supabase

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Zap, Map, BookOpen, List, Search, Scale, Database, Loader2, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import HunterSearch from '@/components/HunterSearch';
@@ -18,10 +18,12 @@ export default function Home() {
   const [showModal, setShowModal] = useState(false);
   const [showMap, setShowMap] = useState(false);
 
-  const handleSearch = async (filters: SearchFilters) => {
+  const handleSearch = useCallback(async (filters: SearchFilters) => {
     await performSearch(filters);
     setHasSearched(true);
-  };
+  }, [performSearch]);
+
+  const closeModal = useCallback(() => setShowModal(false), []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-black to-zinc-900">
@@ -188,7 +190,7 @@ export default function Home() {
         </footer>
       </main>
 
-      <HowToClaimModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      <HowToClaimModal isOpen={showModal} onClose={closeModal} />
     </div>
   );
 }

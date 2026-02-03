@@ -26,7 +26,7 @@ export async function geocodeAddress(
 
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'HeritageHunter/1.0 (contact@example.com)',
+        'User-Agent': `HeritageHunter/1.0 (${process.env.CONTACT_EMAIL || 'heritage-hunter@example.com'})`,
       },
     });
 

@@ -33,6 +33,12 @@ let apiAvailable: boolean | null = null;
 let lastApiCheck = 0;
 const API_CHECK_INTERVAL = 60000; // Re-check every 60 seconds
 
+// In-memory cache for infrequently changing data
+const CACHE_TTL = 300_000; // 5 minutes
+
+let cachedStats: { data: StatisticsData; expiry: number } | null = null;
+let cachedCities: { data: CityData[]; expiry: number } | null = null;
+
 /**
  * Checks if the API is available with 60-second caching
  *
@@ -257,15 +263,25 @@ export function searchLandsSync(query: string, filters?: { city?: string; distri
  * ```
  */
 export async function getCities(): Promise<CityData[]> {
-  if (await isApiAvailable()) {
-    try {
-      return await getCitiesApi();
-    } catch (error) {
-      console.warn('API cities fetch failed, falling back to local:', error);
-    }
+  const now = Date.now();
+  if (cachedCities && now < cachedCities.expiry) {
+    return cachedCities.data;
   }
 
-  return getCitiesLocal();
+  let result: CityData[];
+  if (await isApiAvailable()) {
+    try {
+      result = await getCitiesApi();
+    } catch (error) {
+      console.warn('API cities fetch failed, falling back to local:', error);
+      result = getCitiesLocal();
+    }
+  } else {
+    result = getCitiesLocal();
+  }
+
+  cachedCities = { data: result, expiry: now + CACHE_TTL };
+  return result;
 }
 
 /**
@@ -378,15 +394,25 @@ export async function getLandById(id: string): Promise<UnclaimedLand | null> {
  * ```
  */
 export async function getStatistics(): Promise<StatisticsData> {
-  if (await isApiAvailable()) {
-    try {
-      return await getStatisticsApi();
-    } catch (error) {
-      console.warn('API stats fetch failed, falling back to local:', error);
-    }
+  const now = Date.now();
+  if (cachedStats && now < cachedStats.expiry) {
+    return cachedStats.data;
   }
 
-  return getStatisticsLocal();
+  let result: StatisticsData;
+  if (await isApiAvailable()) {
+    try {
+      result = await getStatisticsApi();
+    } catch (error) {
+      console.warn('API stats fetch failed, falling back to local:', error);
+      result = getStatisticsLocal();
+    }
+  } else {
+    result = getStatisticsLocal();
+  }
+
+  cachedStats = { data: result, expiry: now + CACHE_TTL };
+  return result;
 }
 
 /**
